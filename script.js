@@ -27,11 +27,13 @@ class Cell {
     //state updating functions
     reveal() {
         this.state = "revealed";
-
         this.updateAppearance();
+        
         if (this.containsMine) {
-            //TODO: lose the game
-                //setTimeout(() => {alert("You lose!")}, 50);
+                setTimeout(() => {
+                    alert("You lose!")
+                    resetGame();
+                }, 500);
         }
     }
 
