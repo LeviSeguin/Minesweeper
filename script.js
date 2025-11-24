@@ -143,7 +143,7 @@ for (let i = 0; i < gridWidth; i++) {
 
         //left click
         currEl.addEventListener("click", () => {
-            revealEmptyNeighbours(i, j, gridWidth, gridHeight, grid);
+            cellClicked(i, j, gridWidth, gridHeight, grid);
         })
 
         //right click
@@ -209,8 +209,26 @@ for (let i = 0; i < gridWidth; i++) {
     }
 }
 
-//function to dfs reveal empty neighbours
-function revealEmptyNeighbours(r, c, width, height, grid) {
+// helper sleep function for animation
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+let isGridBusy = false;
+
+//calls helper dfs and disables clicks while running
+async function cellClicked(r, c, width, height, grid) {
+    if (isGridBusy) return;
+    if (grid[r][c].state !== "hidden") return;
+
+    isGridBusy = true;
+    await bfsEmptyNeighbours(r, c, width, height, grid);
+    isGridBusy = false;
+}
+
+//helper dfs to reveal empty neighbours
+async function revealEmptyNeighbours(r, c, width, height, grid) {
     if (grid[r][c].state !== "hidden") {
         return
     }
@@ -219,9 +237,10 @@ function revealEmptyNeighbours(r, c, width, height, grid) {
 
     //dont dfs if mine
     if(grid[r][c].containsMine) return;
-
+    
     //dfs
     if (grid[r][c].nearbyMines === 0) {
+        await sleep(100);
         for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
                 //create neighbour cell coords
@@ -232,16 +251,68 @@ function revealEmptyNeighbours(r, c, width, height, grid) {
                 if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
                     continue;
                 }
-                //old jank reveal animation
-                //setTimeout(() => {revealEmptyNeighbours(nr, nc, width, height, grid)}, 150);
 
-                //dfs
-                revealEmptyNeighbours(nr, nc, width, height, grid)
+                //recur
+                await revealEmptyNeighbours(nr, nc, width, height, grid)
             }
         }
     }
 }
 
+async function bfsEmptyNeighbours(r, c, width, height, grid) {
+    if (grid[r][c].state !== "hidden") return;
+
+    //bfs
+    let queue = [[[r, c]]];
+    let queued = new Set();
+    queued.add(`${r},${c}`);
+
+    while (queue.length > 0) {
+        console.log("queue:", queue);
+        const currPoints = queue.shift();
+       
+        const newLayer = [];
+
+        //reveal
+        for (const [row, col] of currPoints) { 
+            grid[row][col].reveal();
+            if (grid[row][col].containsMine) {
+                return;
+            }
+        }
+        await sleep(100);
+        //bfs add all cells
+        for (const [row, col] of currPoints) {
+
+            //iterate through curr cells neighbours
+            if (grid[row][col].nearbyMines === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        //create neighbour cell coords
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        const key = `${nr},${nc}`;
+
+                        //check bounds of neighbour cell
+                        if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
+                            continue;
+                        }
+                        if (grid[nr][nc].state !== "hidden") continue;
+                        if (queued.has(key)) continue;
+
+                        newLayer.push([nr, nc]);
+                        queued.add(key);
+                    }
+                }
+                
+            }
+
+        }
+        if (newLayer.length > 0) queue.push(newLayer);
+    }
+}
+
+//applies func to each cell
 function forEachCell(grid, func) {
     for (let i = 0; i < gridWidth; i++) {
         for (let j = 0; j < gridHeight; j++) {
