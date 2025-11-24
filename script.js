@@ -34,6 +34,9 @@ class Cell {
                     alert("You lose!")
                     resetGame();
                 }, 500);
+        } else {
+            //can update to board method later
+            cellRevealed();
         }
     }
 
@@ -92,7 +95,25 @@ const gridElement = document.getElementById("game-grid");
 let gridWidth = 10;
 let gridHeight = 10;
 let mineCount = 10;
+let remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
 const grid = []
+
+//decrease count of remaining empty cells
+function cellRevealed() {
+    remainingEmptyCells -= 1;
+    checkWinGame();
+}
+
+//check if game is won
+function checkWinGame() {
+    if (remainingEmptyCells === 0) {
+        setTimeout(() => {
+            alert("you win the game!")
+            resetGame();
+        }, 30);
+        
+    }
+}
 
 // init grid with Cells
 for (let row = 0; row < gridWidth; row++) {
@@ -231,6 +252,9 @@ function forEachCell(grid, func) {
 
 //reset game 
 function resetGame(){
+    //reset counter for remaining empty cells
+    remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
+
     //set all cells to hidden
     forEachCell(grid, cell => cell.reset());
 
@@ -245,6 +269,11 @@ function resetGame(){
     }
     //update appearance
     forEachCell(grid, cell => cell.updateAppearance());
+
+    //DEBUG
+    //forEachCell(grid, cell => cell.state = "revealed");
+    //forEachCell(grid, cell => cell.updateAppearance());
+
 }
 
 //reset game button

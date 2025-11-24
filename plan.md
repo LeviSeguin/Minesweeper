@@ -13,7 +13,7 @@ A browser minesweeper clone
 - [x] make each cell know how many mines near it
 - [x] reveal logic for spots with 0 nearby mines
 - [x] losing
-- [ ] winning
+- [x] winning
 - [x] restarting the game
 - [x] simple ui
 
@@ -29,15 +29,20 @@ A browser minesweeper clone
 - [med] question or flag state affects empty reveal
 
 # Maintenance Tasks
-- [ ] create a Board class for functions that affect all Cells
-- [ ] maybe use seperate js files for classes
-- [ ] create a working starting point on git
-- [ ] clean up unnecessary css
-- [ ] clean up reset the game button (add button in html instead of js)
-- [ ] make cell class more maintainable by adding properties for appearance, instead of all being done in updateAppearance()
+- create a Board class for functions that affect all Cells
+- maybe use seperate js files for classes
+- clean up unnecessary css
+- clean up reset the game button (add button in html instead of js)
+- refactor cell reseting (update appearance should be called in class method probably)
+- make cell class more maintainable by adding properties for appearance, instead of all being done in updateAppearance()
+- implement debug tools for development
 
 --------------------------------------
 
 # TASKS
-- create a working starting point on git
 - implement winning the game
+    - all tiles searched except for ones with mines
+    - on each reveal, check if win game
+    - board level method, needs state of all cells
+        - more efficient: decrease a counter. cell would need to be passed board then?
+        - since no board class yet i guess ill decrease a global counter
