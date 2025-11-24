@@ -30,14 +30,16 @@ class Cell {
         this.updateAppearance();
         
         if (this.containsMine) {
+            isGameDone = true;
                 setTimeout(() => {
                     alert("You lose!")
                     resetGame();
                 }, 500);
         } else {
             //can update to board method later
-            cellRevealed();
+            return cellRevealed();
         }
+        return false;
     }
 
     flag() {
@@ -94,25 +96,42 @@ class Cell {
 const gridElement = document.getElementById("game-grid");
 let gridWidth = 10;
 let gridHeight = 10;
-let mineCount = 10;
+let mineCount = 1;
 let remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
+let isGameDone = false;
 const grid = []
 
+//waits until conditionFn is true
+function waitUntil(conditionFn) {
+    return new Promise(resolve => {
+        function check() {
+            if (conditionFn()) {
+                resolve();
+            } else {
+                requestAnimationFrame(check); 
+                // or: setTimeout(check, 10)
+            }
+        }
+        check();
+    });
+}
 //decrease count of remaining empty cells
 function cellRevealed() {
     remainingEmptyCells -= 1;
-    checkWinGame();
+    return checkWinGame();
 }
 
 //check if game is won
 function checkWinGame() {
+    waitUntil(() => isGridBusy === false);
     if (remainingEmptyCells === 0) {
         setTimeout(() => {
             alert("you win the game!")
             resetGame();
         }, 30);
-        
+        return true
     }
+    return false
 }
 
 // init grid with Cells
@@ -214,7 +233,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
 let isGridBusy = false;
 
 //calls helper dfs and disables clicks while running
@@ -275,10 +293,8 @@ async function bfsEmptyNeighbours(r, c, width, height, grid) {
 
         //reveal
         for (const [row, col] of currPoints) { 
-            grid[row][col].reveal();
-            if (grid[row][col].containsMine) {
-                return;
-            }
+            if (grid[row][col].reveal()) return;
+            if (grid[row][col].containsMine) return;
         }
         await sleep(100);
         //bfs add all cells
@@ -323,6 +339,7 @@ function forEachCell(grid, func) {
 
 //reset game 
 function resetGame(){
+    isGameDone = false;
     //reset counter for remaining empty cells
     remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
 
