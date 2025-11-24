@@ -73,6 +73,7 @@ class Cell {
                 this.element.innerText = "";
                 this.element.style.backgroundColor = "white";
                 this.element.style.border = "1px solid grey";
+                this.element.style.color = "black"
                 break;
             case "flagged":
                 this.element.innerText = "🚩";

@@ -26,6 +26,7 @@ A browser minesweeper clone
 
 # Known Issues
 - [low] losing doesnt lock player out from clicking, might cause weird effects
+- [med] question or flag state affects empty reveal
 
 # Maintenance Tasks
 - [ ] create a Board class for functions that affect all Cells
@@ -33,6 +34,7 @@ A browser minesweeper clone
 - [ ] create a working starting point on git
 - [ ] clean up unnecessary css
 - [ ] clean up reset the game button (add button in html instead of js)
+- [ ] make cell class more maintainable by adding properties for appearance, instead of all being done in updateAppearance()
 
 --------------------------------------
 
