@@ -60,9 +60,10 @@ class Cell {
                 if (this.containsMine) {
                     this.element.innerText = "💣"
                 } else {
+                    //put number in cell
                     if (this.nearbyMines > 0) this.element.innerText = this.nearbyMines;
                     this.element.style.color = COLOR_MAP[this.nearbyMines]; 
-                    }
+                }
 
                 this.element.style.backgroundColor = "grey";
                 this.element.style.border = "none";
@@ -79,6 +80,7 @@ class Cell {
             case "questionMark":
                 this.element.innerText = "?";
                 break;
+            //shouldnt reach default
             default:
                 alert(`unknown appearance for state: ${this.state}`);
         }
@@ -185,7 +187,6 @@ for (let i = 0; i < gridWidth; i++) {
     }
 }
 
-//TODO: implement async bfs isntead of jank setTimeout
 //function to dfs reveal empty neighbours
 function revealEmptyNeighbours(r, c, width, height, grid) {
     if (grid[r][c].state !== "hidden") {
@@ -209,15 +210,15 @@ function revealEmptyNeighbours(r, c, width, height, grid) {
                 if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
                     continue;
                 }
-                setTimeout(() => {revealEmptyNeighbours(nr, nc, width, height, grid)}, 150);
-                
+                //old jank reveal animation
+                //setTimeout(() => {revealEmptyNeighbours(nr, nc, width, height, grid)}, 150);
+
+                //dfs
+                revealEmptyNeighbours(nr, nc, width, height, grid)
             }
         }
     }
 }
-
-//TODO: forEachCell function
-//TODO: consider creating a board class
 
 function forEachCell(grid, func) {
     for (let i = 0; i < gridWidth; i++) {
@@ -245,7 +246,7 @@ function resetGame(){
     forEachCell(grid, cell => cell.updateAppearance());
 }
 
-//testing reset game
+//reset game button
 const testButtonEl = document.createElement("button");
 testButtonEl.innerText = "reset";
 testButtonEl.addEventListener("click", resetGame);
