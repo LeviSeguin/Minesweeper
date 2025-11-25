@@ -30,7 +30,6 @@ class Cell {
         this.updateAppearance();
         
         if (this.containsMine) {
-            isGameDone = true;
                 setTimeout(() => {
                     alert("You lose!")
                     resetGame();
@@ -96,25 +95,10 @@ class Cell {
 const gridElement = document.getElementById("game-grid");
 let gridWidth = 10;
 let gridHeight = 10;
-let mineCount = 1;
+let mineCount = 10;
 let remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
-let isGameDone = false;
 const grid = []
 
-//waits until conditionFn is true
-function waitUntil(conditionFn) {
-    return new Promise(resolve => {
-        function check() {
-            if (conditionFn()) {
-                resolve();
-            } else {
-                requestAnimationFrame(check); 
-                // or: setTimeout(check, 10)
-            }
-        }
-        check();
-    });
-}
 //decrease count of remaining empty cells
 function cellRevealed() {
     remainingEmptyCells -= 1;
@@ -123,7 +107,6 @@ function cellRevealed() {
 
 //check if game is won
 function checkWinGame() {
-    waitUntil(() => isGridBusy === false);
     if (remainingEmptyCells === 0) {
         setTimeout(() => {
             alert("you win the game!")
@@ -339,7 +322,6 @@ function forEachCell(grid, func) {
 
 //reset game 
 function resetGame(){
-    isGameDone = false;
     //reset counter for remaining empty cells
     remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
 
