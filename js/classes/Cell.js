@@ -1,5 +1,4 @@
 export default class Cell {
-    //takes a reference to its Grid
     constructor(grid, row, col) {
         this.state = "hidden";
         this.nearbyMines = 0;

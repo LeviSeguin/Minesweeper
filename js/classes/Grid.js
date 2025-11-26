@@ -18,7 +18,7 @@ export default class Grid {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.mineCount = mineCount;
-        this.element = document.getElementById("game-grid"); //should update this to create a new one then add to dom 
+        this.element = document.getElementById("game-grid"); //should update this to create a new one then add to dom maybe
         this.state = {
             remainingEmptyCells: (this.gridWidth * this.gridHeight) - this.mineCount,
             minesFound: 0,
@@ -34,7 +34,6 @@ export default class Grid {
             this.grid.push(row);
         }
 
-        //TODO: finish after "cellClicked"
         //add eventListeners to cells
         for (let i = 0; i < this.gridWidth; i++) {
             for (let j = 0; j < this.gridWidth; j++) {
@@ -59,7 +58,7 @@ export default class Grid {
     async bfsFindCells(r, c) {
         if (this.grid[r][c].state !== "hidden") return;
 
-        //bfs
+        //layered bfs
         let queue = [[[r, c]]];
         let queued = new Set();
         queued.add(`${r},${c}`);
@@ -138,7 +137,7 @@ export default class Grid {
         this.forEachCell(cell => this.element.appendChild(cell.element));
     }
 
-    //takes an object from Cell.reveal with info needed to update game state
+    //takes a cellInfo object from Cell.reveal with info needed to update game state
     updateGameState(cellInfo) {
         cellInfo.hasMine ? this.state.minesFound++ : this.state.remainingEmptyCells--;
     }
@@ -172,6 +171,7 @@ export default class Grid {
         }, 500);
     }
 
+    //randomly places mines 
     placeMines() {      
         //randomly generate mine locations, avoiding duplicates by using a set
         const mines = new Set(); // "row,col"
@@ -181,13 +181,14 @@ export default class Grid {
             mines.add(`${r},${c}`);
         }
 
-        //call Cell.placeMine() for each mine
+        //place mines
         for (const m of mines) {
             const [r, c] = m.split(",").map(Number);
             this.grid[r][c].placeMine();
         }
     }
 
+    //returns number of nearby mines at grid[r][c]
     countNearbyMines(r, c) {
         let count = 0;
         //loop from -1 to 1 for delta row and delta col 
@@ -236,6 +237,7 @@ export default class Grid {
 
     }
 
+    //helper function for reveal animation
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }   
