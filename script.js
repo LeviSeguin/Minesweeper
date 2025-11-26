@@ -1,87 +1,18 @@
-
-
-
-class Cell {
-    //takes a reference to its Grid
-    constructor(grid, row, col) {
-        this.state = "hidden";
-        this.nearbyMines = 0;
-        this.containsMine = false;
-
-        this.element = document.createElement("button");
-        this.grid = grid;
-        this.row = row;
-        this.col = col;
-    }
-
-    //state updating functions
-    reset() {
-        this.state = "hidden";
-        this.nearbyMines = 0;
-        this.containsMine = false;
-    }
-
-    reveal() {
-        this.state = "revealed";
-        this.updateAppearance();
-
-        //update grid state by passing cellInfo object to Grid.updateGameState
-        const cellInfo = { hasMine: this.containsMine }
-        this.grid.updateGameState(cellInfo);
-    }
-
-    flag() {
-        if (this.state ==="hidden") {
-            this.state = "flagged";
-        } else if (this.state === "flagged") {
-            this.state = "questionMark";
-        } else if (this.state ==="questionMark") {
-            this.state = "hidden";
-        }
-        
-        this.updateAppearance();
-    }
-
-    placeMine() {
-        this.containsMine = true;
-    }
-
-    //updates appearance of cell
-    updateAppearance() {
-        switch (this.state) {
-            case "revealed":
-                if (this.containsMine) {
-                    this.element.innerText = "💣"
-                } else {
-                    //put number in cell
-                    if (this.nearbyMines > 0) this.element.innerText = this.nearbyMines;
-                    this.element.style.color = COLOR_MAP[this.nearbyMines]; 
-                }
-
-                this.element.style.backgroundColor = "grey";
-                this.element.style.border = "none";
-                break;
-            
-            case "hidden":
-                this.element.innerText = "";
-                this.element.style.backgroundColor = "white";
-                this.element.style.border = "1px solid grey";
-                this.element.style.color = "black"
-                break;
-            case "flagged":
-                this.element.innerText = "🚩";
-                break;
-            case "questionMark":
-                this.element.innerText = "?";
-                break;
-            //shouldnt reach default
-            default:
-                console.log(`unknown appearance for Cell state: ${this.state}`);
-        }
-    }
-}
+import Cell from "./js/classes/Cell.js";
 
 class Grid {
+    static COLOR_MAP = {
+    0: "black",
+    1: "blue",
+    2: "green",
+    3: "red",
+    4: "purple",
+    5: "maroon",
+    6: "cyan",
+    7: "black",
+    8: "pink",
+}
+
     constructor(gridWidth = 10, gridHeight = 10, mineCount = 10) {
         this.grid = []
         this.gridWidth = gridWidth;
@@ -146,7 +77,7 @@ class Grid {
             if (this.grid[r][c].containsMine) break; //break so can check game state after loop!
 
 
-            await sleep(100);
+            await this.sleep(100);
             //bfs add all cells
             for (const [row, col] of currPoints) {
 
@@ -304,31 +235,16 @@ class Grid {
 
 
     }
-}
 
-// helper sleep function for animation
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }   
 }
-
 
 const GAME_VALUES = {
     gridHeight: 10,
     gridWidth: 10,
     numMines: 10
-}
-
-//could put this into Grid and cells access from there
-const COLOR_MAP = {
-    0: "black",
-    1: "blue",
-    2: "green",
-    3: "red",
-    4: "purple",
-    5: "maroon",
-    6: "cyan",
-    7: "black",
-    8: "pink",
 }
 
 //DRIVER
@@ -340,40 +256,7 @@ grid.addCellsToDom();
 //setup game
 grid.resetGame();
 
-
-//OPTIONAL: add different searches to grid, user can choose which one they want
-//OLD: helper dfs to reveal empty neighbours
-async function revealEmptyNeighbours(r, c, width, height, grid) {
-    if (grid[r][c].state !== "hidden") {
-        return
-    }
-
-    grid[r][c].reveal();
-
-    //dont dfs if mine
-    if(grid[r][c].containsMine) return;
-    
-    //dfs
-    if (grid[r][c].nearbyMines === 0) {
-        await sleep(100);
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-                //create neighbour cell coords
-                const nr = r + dr;
-                const nc = c + dc;
-
-                //check bounds of neighbour cell
-                if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
-                    continue;
-                }
-
-                //recur
-                await revealEmptyNeighbours(nr, nc, width, height, grid)
-            }
-        }
-    }
-}
-
+//TODO: put this in html and css
 //reset game button
 const testButtonEl = document.createElement("button");
 testButtonEl.innerText = "Reset";
