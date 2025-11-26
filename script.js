@@ -1,36 +1,26 @@
-const COLOR_MAP = {
-    0: "black",
-    1: "blue",
-    2: "green",
-    3: "red",
-    4: "purple",
-    5: "maroon",
-    6: "cyan",
-    7: "black",
-    8: "pink",
-}
 
 
 
 class Cell {
-    //takes a reference to it's Grid
+    //takes a reference to its Grid
     constructor(grid, row, col) {
         this.state = "hidden";
         this.nearbyMines = 0;
         this.containsMine = false;
+
         this.element = document.createElement("button");
         this.grid = grid;
         this.row = row;
         this.col = col;
     }
 
+    //state updating functions
     reset() {
         this.state = "hidden";
         this.nearbyMines = 0;
         this.containsMine = false;
     }
 
-    //state updating functions
     reveal() {
         this.state = "revealed";
         this.updateAppearance();
@@ -86,17 +76,10 @@ class Cell {
                 break;
             //shouldnt reach default
             default:
-                alert(`unknown appearance for state: ${this.state}`);
+                console.log(`unknown appearance for Cell state: ${this.state}`);
         }
     }
 }
-
-const gridElement = document.getElementById("game-grid");
-let gridWidth = 10;
-let gridHeight = 10;
-let mineCount = 10;
-let remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
-const grid = []
 
 class Grid {
     constructor(gridWidth = 10, gridHeight = 10, mineCount = 10) {
@@ -124,12 +107,12 @@ class Grid {
         //add eventListeners to cells
         for (let i = 0; i < this.gridWidth; i++) {
             for (let j = 0; j < this.gridWidth; j++) {
-                const currCell = grid[i][j];
+                const currCell = this.grid[i][j];
                 const currEl = currCell.element;
 
                 //left click
                 currEl.addEventListener("click", () => {
-                    cellClicked(i, j, gridWidth, gridHeight, grid);
+                    this.cellClicked(i, j);
                 })
 
                 //right click
@@ -143,7 +126,7 @@ class Grid {
 
     //reveals all nearby 0 cells, then checks game state for win or lose
     async bfsFindCells(r, c) {
-        if (grid[r][c].state !== "hidden") return;
+        if (this.grid[r][c].state !== "hidden") return;
 
         //bfs
         let queue = [[[r, c]]];
@@ -154,18 +137,21 @@ class Grid {
             const currPoints = queue.shift();
             const newLayer = [];
 
-            //adjusted this, might break
-            //reveal
+            //reveal current layer
             for (const [row, col] of currPoints) { 
-                grid[row][col].reveal()
+                this.grid[row][col].reveal()
             }
+
+            //dont search if initial cell had a mine
+            if (this.grid[r][c].containsMine) break; //break so can check game state after loop!
+
 
             await sleep(100);
             //bfs add all cells
             for (const [row, col] of currPoints) {
 
                 //iterate through curr cells neighbours
-                if (grid[row][col].nearbyMines === 0) {
+                if (this.grid[row][col].nearbyMines === 0) {
                     for (let dr = -1; dr <= 1; dr++) {
                         for (let dc = -1; dc <= 1; dc++) {
                             //create neighbour cell coords
@@ -174,10 +160,10 @@ class Grid {
                             const key = `${nr},${nc}`;
 
                             //check bounds of neighbour cell
-                            if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
+                            if (nr < 0 || nr >= this.gridHeight|| nc < 0 || nc >= this.gridWidth) {
                                 continue;
                             }
-                            if (grid[nr][nc].state !== "hidden") continue;
+                            if (this.grid[nr][nc].state !== "hidden") continue;
                             if (queued.has(key)) continue;
 
                             newLayer.push([nr, nc]);
@@ -243,7 +229,7 @@ class Grid {
     winGame() {
         setTimeout(() => {
             alert("you win the game!")
-            resetGame();
+            this.resetGame();
         }, 30);
     }
 
@@ -251,7 +237,7 @@ class Grid {
     loseGame() {
         setTimeout(() => {
             alert("You lose!")
-            resetGame();
+            this.resetGame();
         }, 500);
     }
 
@@ -267,157 +253,56 @@ class Grid {
         //call Cell.placeMine() for each mine
         for (const m of mines) {
             const [r, c] = m.split(",").map(Number);
-            grid[r][c].placeMine();
+            this.grid[r][c].placeMine();
         }
     }
 
-    //TODO: finish
+    countNearbyMines(r, c) {
+        let count = 0;
+        //loop from -1 to 1 for delta row and delta col 
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                //skip center cell
+                if (dr === 0 && dc === 0) {
+                    continue;
+                }
+                
+                //create neighbour cell coords
+                const nr = r + dr;
+                const nc = c + dc;
+
+                //check bounds of neighbour cell
+                if (nr < 0 || nr >= this.gridHeight || nc < 0 || nc >= this.gridWidth) {
+                    continue;
+                }
+                //inc count if mine at neighbour
+                if (this.grid[nr][nc].containsMine) {
+                    count += 1
+                }
+            }
+        }
+        return count;
+    }
+
     resetGame() {
-        //reset counter for remaining empty cells
-        //remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
+        //reset game state
         this.state.remainingEmptyCells = (this.gridWidth * this.gridHeight) - this.mineCount;
+        this.state.minesFound = 0;
 
         //set all cells to hidden
-        //forEachCell(grid, cell => cell.reset());
-        this.forEachCell(grid, cell => cell.reset());
+        this.forEachCell(cell => cell.reset());
 
         //place new mines
-        //placeMines(gridWidth, gridHeight, mineCount, grid);
         this.placeMines();
 
         //count nearby mines
-        //TODO: finish after countNearbyMines function
-        /*
-        for (let i = 0; i < gridWidth; i++) {
-            for (let j = 0; j < gridHeight; j++) {
-            grid[i][j].nearbyMines = countNearbyMines(i, j, gridWidth, gridHeight, grid);
-            }
-        }
-        */
-        this.forEachCell(cell => )
+        //OPTIONAL TODO: turn callback into a "updateCellNearbyMines" method or something
+        this.forEachCell(cell => cell.nearbyMines = this.countNearbyMines(cell.row, cell.col))
+
         //update appearance
-        forEachCell(grid, cell => cell.updateAppearance());
+        this.forEachCell(cell => cell.updateAppearance());
 
-        //DEBUG
-        //forEachCell(grid, cell => cell.state = "revealed");
-        //forEachCell(grid, cell => cell.updateAppearance());
-    }
 
-}
-
-//TODO: add functionality to checkGameState
-//decrease count of remaining empty cells
-function cellRevealed() {
-    remainingEmptyCells -= 1;
-    return checkWinGame();
-}
-
-//DONE
-//check if game is won
-function checkWinGame() {
-    if (remainingEmptyCells === 0) {
-        setTimeout(() => {
-            alert("you win the game!")
-            resetGame();
-        }, 30);
-        return true
-    }
-    return false
-}
-
-//DONE
-// init grid with Cells
-for (let row = 0; row < gridWidth; row++) {
-    const gridRow = [];
-    for (let col = 0; col < gridHeight; col++) {
-        //Cell instance with element reference
-        const cell = new Cell();
-
-        gridRow.push(cell)
-    }
-    grid.push(gridRow);
-}
-
-//DONE
-// add each Cell's element to dom
-for (let i = 0; i < gridWidth; i++) {
-    for (let j = 0; j < gridWidth; j++) {
-        gridElement.appendChild(grid[i][j].element);
-    }
-}
-
-//TODO: finish after doing "cellClicked"
-//add eventListeners to elements
-for (let i = 0; i < gridWidth; i++) {
-    for (let j = 0; j < gridWidth; j++) {
-        const currCell = grid[i][j];
-        const currEl = currCell.element;
-
-        //left click
-        currEl.addEventListener("click", () => {
-            cellClicked(i, j, gridWidth, gridHeight, grid);
-        })
-
-        //right click
-        currEl.addEventListener("contextmenu", e => {
-            e.preventDefault();
-            currCell.flag();
-        })
-    }
-}
-
-//place mines function
-function placeMines(width, height, mineCount, grid) {
-    
-    //randomly generate mine locations, avoiding duplicates by using a set
-    const mines = new Set(); // "row,col"
-    while (mines.size < mineCount) {
-        const r = Math.floor(Math.random() * height);
-        const c = Math.floor(Math.random() * width);
-        mines.add(`${r},${c}`);
-    }
-
-    //place mines
-    for (const m of mines) {
-        const [r, c] = m.split(",").map(Number);
-        grid[r][c].placeMine();
-    }  
-}
-//place mines
-placeMines(gridWidth, gridHeight, mineCount, grid);
-
-//count nearby mines function
-function countNearbyMines(r, c, width, height, grid) {
-    let count = 0;
-    //loop from -1 to 1 for delta row and delta col 
-    for (let dr = -1; dr <= 1; dr++) {
-        for (let dc = -1; dc <= 1; dc++) {
-            //skip center cell
-            if (dr === 0 && dc === 0) {
-                continue;
-            }
-            
-            //create neighbour cell coords
-            const nr = r + dr;
-            const nc = c + dc;
-
-            //check bounds of neighbour cell
-            if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
-                continue;
-            }
-            //inc count if mine at neighbour
-            if (grid[nr][nc].containsMine) {
-                count += 1
-            }
-        }
-    }
-    return count;
-}
-
-//count nearby mines for each cell
-for (let i = 0; i < gridWidth; i++) {
-    for (let j = 0; j < gridHeight; j++) {
-        grid[i][j].nearbyMines = countNearbyMines(i, j, gridWidth, gridHeight, grid);
     }
 }
 
@@ -426,19 +311,38 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//TODO: finish after doing bfs
-let isGridBusy = false;
-//calls helper dfs and disables clicks while running
-async function cellClicked(r, c, width, height, grid) {
-    if (isGridBusy) return;
-    if (grid[r][c].state !== "hidden") return;
 
-    isGridBusy = true;
-    await bfsEmptyNeighbours(r, c, width, height, grid);
-    isGridBusy = false;
+const GAME_VALUES = {
+    gridHeight: 10,
+    gridWidth: 10,
+    numMines: 10
 }
 
-//helper dfs to reveal empty neighbours
+//could put this into Grid and cells access from there
+const COLOR_MAP = {
+    0: "black",
+    1: "blue",
+    2: "green",
+    3: "red",
+    4: "purple",
+    5: "maroon",
+    6: "cyan",
+    7: "black",
+    8: "pink",
+}
+
+//DRIVER
+const grid = new Grid(GAME_VALUES.gridHeight, GAME_VALUES.gridWidth, GAME_VALUES.numMines);
+
+// add each Cell's element to dom
+grid.addCellsToDom();
+
+//setup game
+grid.resetGame();
+
+
+//OPTIONAL: add different searches to grid, user can choose which one they want
+//OLD: helper dfs to reveal empty neighbours
 async function revealEmptyNeighbours(r, c, width, height, grid) {
     if (grid[r][c].state !== "hidden") {
         return
@@ -470,97 +374,13 @@ async function revealEmptyNeighbours(r, c, width, height, grid) {
     }
 }
 
-async function bfsEmptyNeighbours(r, c, width, height, grid) {
-    if (grid[r][c].state !== "hidden") return;
-
-    //bfs
-    let queue = [[[r, c]]];
-    let queued = new Set();
-    queued.add(`${r},${c}`);
-
-    while (queue.length > 0) {
-        console.log("queue:", queue);
-        const currPoints = queue.shift();
-       
-        const newLayer = [];
-
-        //reveal
-        for (const [row, col] of currPoints) { 
-            if (grid[row][col].reveal()) return;
-            if (grid[row][col].containsMine) return;
-        }
-        await sleep(100);
-        //bfs add all cells
-        for (const [row, col] of currPoints) {
-
-            //iterate through curr cells neighbours
-            if (grid[row][col].nearbyMines === 0) {
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        //create neighbour cell coords
-                        const nr = row + dr;
-                        const nc = col + dc;
-                        const key = `${nr},${nc}`;
-
-                        //check bounds of neighbour cell
-                        if (nr < 0 || nr >= height || nc < 0 || nc >= width) {
-                            continue;
-                        }
-                        if (grid[nr][nc].state !== "hidden") continue;
-                        if (queued.has(key)) continue;
-
-                        newLayer.push([nr, nc]);
-                        queued.add(key);
-                    }
-                }
-                
-            }
-
-        }
-        if (newLayer.length > 0) queue.push(newLayer);
-    }
-}
-
-//applies func to each cell
-function forEachCell(grid, func) {
-    for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j < gridHeight; j++) {
-            func(grid[i][j]);
-        }
-    }
-}
-
-//reset game 
-function resetGame(){
-    //reset counter for remaining empty cells
-    remainingEmptyCells = (gridWidth * gridHeight) - mineCount;
-
-    //set all cells to hidden
-    forEachCell(grid, cell => cell.reset());
-
-    //place new mines
-    placeMines(gridWidth, gridHeight, mineCount, grid);
-
-    //count nearby mines
-    for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j < gridHeight; j++) {
-        grid[i][j].nearbyMines = countNearbyMines(i, j, gridWidth, gridHeight, grid);
-        }
-    }
-    //update appearance
-    forEachCell(grid, cell => cell.updateAppearance());
-
-    //DEBUG
-    //forEachCell(grid, cell => cell.state = "revealed");
-    //forEachCell(grid, cell => cell.updateAppearance());
-
-}
-
 //reset game button
 const testButtonEl = document.createElement("button");
-testButtonEl.innerText = "reset";
-testButtonEl.addEventListener("click", resetGame);
+testButtonEl.innerText = "Reset";
+testButtonEl.addEventListener("click", grid.resetGame.bind(grid));
 document.querySelector("main").appendChild(testButtonEl);
+testButtonEl.style.padding = "5px";
+testButtonEl.style.marginTop= "5px";
 
 
 
