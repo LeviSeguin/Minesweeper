@@ -13,7 +13,7 @@ export default class Grid {
     8: "pink",
 }
 
-    constructor(gridWidth = 10, gridHeight = 10, mineCount = 10) {
+    constructor(gridHeight = 10, gridWidth = 10, mineCount = 10) {
         this.grid = []
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
@@ -26,23 +26,23 @@ export default class Grid {
         this.isBusy = false;
 
         //fill grid with cells
-        for (let i = 0; i < this.gridWidth; i++) {
+        for (let r = 0; r < this.gridHeight; r++) {
             const row = [];
-            for (let j = 0; j < this.gridHeight; j++) {
-                row.push(new Cell(this, i, j));
+            for (let c = 0; c < this.gridWidth; c++) {
+                row.push(new Cell(this, r, c));
             }
             this.grid.push(row);
         }
 
         //add eventListeners to cells
-        for (let i = 0; i < this.gridWidth; i++) {
-            for (let j = 0; j < this.gridWidth; j++) {
-                const currCell = this.grid[i][j];
+        for (let r = 0; r < this.gridHeight; r++) {
+            for (let c = 0; c < this.gridWidth; c++) {
+                const currCell = this.grid[r][c];
                 const currEl = currCell.element;
 
                 //left click
                 currEl.addEventListener("click", () => {
-                    this.cellClicked(i, j);
+                    this.cellClicked(r, c);
                 })
 
                 //right click
@@ -126,9 +126,9 @@ export default class Grid {
 
     //pass a function that takes "cell" as a parameter, calls on each cell
     forEachCell(callback) {
-        for (let i = 0; i < this.gridWidth; i++) {
-            for (let j = 0; j < this.gridHeight; j++) {
-                callback(this.grid[i][j]);
+        for (let r = 0; r < this.gridHeight; r++) {
+            for (let c = 0; c < this.gridWidth; c++) {
+                callback(this.grid[r][c]);
             }
         }
     }
@@ -233,8 +233,6 @@ export default class Grid {
 
         //update appearance
         this.forEachCell(cell => cell.updateAppearance());
-
-
     }
 
     //helper function for reveal animation
