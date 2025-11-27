@@ -18,17 +18,29 @@ html, body {
 
 main {
     background-color: lightblue;
-    max-width: 1200px;
     height: 100%;
-    margin: 0 auto;
 }
 
 /* game grid */
 #game-grid {
     display: grid;
+}
+
+.game-grid-easy {
     grid-template-columns: repeat(10, 40px);
     grid-template-rows: repeat(10, 40px);
 }
+
+.game-grid-medium {
+    grid-template-columns: repeat(16, 40px);
+    grid-template-rows: repeat(16, 40px);
+}
+.game-grid-hard {
+    grid-template-columns: repeat(30, 40px);
+    grid-template-rows: repeat(16, 40px);
+}
+
+
 #game-grid button {
     display: inline-flex;           /* makes flexbox for centering */
     align-items: center;            /* vertical centering */
@@ -50,7 +62,7 @@ main {
 .game-options {
   width: 400px;
   gap: 1em;
-  padding: 0.5em;
+  padding: 1em;
   background-color: black;
   height: 2.5em;
   align-items: center;

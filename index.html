@@ -11,15 +11,15 @@
 
         <h1 class="text-center">Minesweeper</h1>
         <div class="game-options flex flex-row">
-            <select>
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
+            <select id="difficulty-select">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
             </select>
              <button id="reset-btn" class="end">Reset</button>
         </div>
        
-        <div id="game-grid"></div>
+        <div id="game-grid" class="game-grid-easy"></div>
     </main>
 
     <script type="module" src="./script.js"></script>
