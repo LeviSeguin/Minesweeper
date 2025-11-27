@@ -62,14 +62,20 @@ main {
   border: none;
   background-color: white;
 }
+.game-options button:active {
+  background-color: lightgray;
+}
 
 .game-options select {
   padding: 4px;
+}
 
+.game-options select:focus {
+  outline: none;
 }
-.end {
-  margin-left: auto;
-}
+
+
+
 /* Utility classes */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
@@ -93,3 +99,4 @@ main {
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
 .items-center { align-items: center; }
+.end { margin-left: auto; }

@@ -16,14 +16,10 @@ grid.addCellsToDom();
 //setup game
 grid.resetGame();
 
-//TODO: put this in html and css
-//reset game button
-const testButtonEl = document.createElement("button");
-testButtonEl.innerText = "Reset";
-testButtonEl.addEventListener("click", grid.resetGame.bind(grid));
-document.querySelector("main").appendChild(testButtonEl);
-testButtonEl.style.padding = "5px";
-testButtonEl.style.marginTop= "5px";
+//add eventlisteners to ui
+const resetButton = document.getElementById("reset-btn")
+resetButton.addEventListener("click", grid.resetGame.bind(grid));
+
 
 
 
