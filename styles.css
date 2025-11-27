@@ -12,7 +12,7 @@ html, body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #333;
+  color: black;
   background-color: #fff;
 }
 
@@ -47,6 +47,29 @@ main {
     line-height: 1;                 /* prevents vertical shift */
 }
 
+.game-options {
+  width: 400px;
+  gap: 1em;
+  padding: 0.5em;
+  background-color: black;
+  height: 2.5em;
+  align-items: center;
+}
+.game-options button , .game-options select{
+  padding: 4px;
+  height: 1.8em;
+  border-radius: 3px;
+  border: none;
+  background-color: white;
+}
+
+.game-options select {
+  padding: 4px;
+
+}
+.end {
+  margin-left: auto;
+}
 /* Utility classes */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
