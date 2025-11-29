@@ -18,6 +18,7 @@ export default class Grid {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.mineCount = mineCount;
+        this.flagCount = 0;
         this.element = document.getElementById("game-grid"); //should update this to create a new one then add to dom maybe
         this.state = {
             remainingEmptyCells: (this.gridWidth * this.gridHeight) - this.mineCount,
@@ -138,8 +139,20 @@ export default class Grid {
     }
 
     //takes a cellInfo object from Cell.reveal with info needed to update game state
-    updateGameState(cellInfo) {
+    onCellRevealed(cellInfo) {
         cellInfo.hasMine ? this.state.minesFound++ : this.state.remainingEmptyCells--;
+    }
+
+
+    onFlagStateChanged(cellNewState) {
+        if (cellNewState === "flagged") {
+            this.flagCount += 1;
+        } else if (cellNewState === "questionMark") {
+            this.flagCount -= 1;
+        }
+
+        //Grid should probably not update ui but oh well
+        document.getElementById("mine-counter").innerText = `💣: ${this.mineCount - this.flagCount}`
     }
 
     //wins or loses game based on this.state
@@ -220,6 +233,7 @@ export default class Grid {
         //reset game state
         this.state.remainingEmptyCells = (this.gridWidth * this.gridHeight) - this.mineCount;
         this.state.minesFound = 0;
+        this.flagCount = 0;
 
         //set all cells to hidden
         this.forEachCell(cell => cell.reset());
@@ -233,6 +247,9 @@ export default class Grid {
 
         //update appearance
         this.forEachCell(cell => cell.updateAppearance());
+
+        //Grid should probably not update ui but oh well
+        document.getElementById("mine-counter").innerText = `💣: ${this.mineCount}`
     }
 
     //helper function for reveal animation

@@ -21,9 +21,9 @@ export default class Cell {
         this.state = "revealed";
         this.updateAppearance();
 
-        //update grid state by passing cellInfo object to Grid.updateGameState
+        //update grid state by passing cellInfo object to Grid.onCellRevealed
         const cellInfo = { hasMine: this.containsMine }
-        this.grid.updateGameState(cellInfo);
+        this.grid.onCellRevealed(cellInfo);
     }
 
     flag() {
@@ -34,6 +34,9 @@ export default class Cell {
         } else if (this.state ==="questionMark") {
             this.state = "hidden";
         }
+
+        //update grid's flag count
+        this.grid.onFlagStateChanged(this.state);
         
         this.updateAppearance();
     }
