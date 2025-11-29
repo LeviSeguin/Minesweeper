@@ -63,13 +63,13 @@ main {
   width: 400px;
   gap: 1em;
   padding: 1em;
-  background-color: black;
+  background-color: grey;
   height: 2.5em;
   align-items: center;
 }
-.game-options button , .game-options select{
-  padding: 4px;
-  height: 1.8em;
+.game-options button , .game-options select, #mine-counter{
+  padding: 8px;
+  height: 1.8rem;
   border-radius: 3px;
   border: none;
   background-color: white;
@@ -84,6 +84,11 @@ main {
 
 .game-options select:focus {
   outline: none;
+}
+
+#mine-counter {
+  display: flex;
+  align-items: center;
 }
 
 
@@ -111,4 +116,6 @@ main {
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
 .items-center { align-items: center; }
+.start {margin-right: auto;}
 .end { margin-left: auto; }
+.middle { margin-left: auto; margin-right: auto;}
