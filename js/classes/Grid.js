@@ -171,7 +171,7 @@ export default class Grid {
     //wins the game and resets
     winGame() {
         setTimeout(() => {
-            alert("you win the game!")
+            alert("You win! Play again?")
             this.resetGame();
         }, 30);
     }
@@ -179,9 +179,9 @@ export default class Grid {
     //loses the game and resets
     loseGame() {
         setTimeout(() => {
-            alert("You lose!")
+            alert("You lose! Play again?")
             this.resetGame();
-        }, 500);
+        }, 30);
     }
 
     //randomly places mines 
