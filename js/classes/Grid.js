@@ -230,6 +230,9 @@ export default class Grid {
     }
 
     resetGame() {
+        //disable reset while searching
+        if (this.isBusy) return;
+
         //reset game state
         this.state.remainingEmptyCells = (this.gridWidth * this.gridHeight) - this.mineCount;
         this.state.minesFound = 0;

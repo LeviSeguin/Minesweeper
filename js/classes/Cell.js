@@ -27,6 +27,7 @@ export default class Cell {
     }
 
     flag() {
+        if (this.grid.isBusy) return;
         if (this.state ==="hidden") {
             this.state = "flagged";
         } else if (this.state === "flagged") {
